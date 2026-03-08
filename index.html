@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitCalc Pro — Calculateur Fitness & Bien-être</title>
+<meta name="description" content="Calculez votre IMC, vos besoins caloriques, votre masse grasse et votre plan de remise en forme gratuitement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+<!-- 💰 EMPLACEMENT PUB GOOGLE ADSENSE — remplace ca par ton vrai code AdSense -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<style>
+  :root {
+    --bg: #0a0e0a;
+    --surface: #111811;
+    --surface2: #182018;
+    --accent: #a8ff57;
+    --accent2: #57ffb8;
+    --accent3: #ff6b35;
+    --text: #e8f5e0;
+    --muted: #6b8a60;
+    --border: #1f2e1f;
+    --card: #141c14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* GLOW BG */
+  .bg-glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,255,87,0.06) 0%, transparent 70%);
+    top: -200px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+    animation: glowMove 8s ease-in-out infinite alternate;
+  }
+  .bg-glow-2 {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(87,255,184,0.05) 0%, transparent 70%);
+    bottom: -100px; right: -50px;
+    pointer-events: none;
+    z-index: 0;
+    animation: glowMove 12s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes glowMove {
+    from { transform: translate(0, 0); }
+    to { transform: translate(40px, 30px); }
+  }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 10;
+    padding: 1.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    background: rgba(10,14,10,0.8);
+    position: sticky; top: 0;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.03em;
+  }
+  .logo span { color: var(--accent); }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-left: 1.5rem;
+    transition: color 0.2s;
+    font-weight: 500;
+  }
+  nav a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(168,255,87,0.3);
+    padding: 0.3rem 1rem;
+    border-radius: 2rem;
+    margin-bottom: 1.5rem;
+    background: rgba(168,255,87,0.05);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+    font-weight: 300;
+  }
+
+  /* TABS */
+  .tabs {
+    position: relative; z-index: 1;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    padding: 0 2rem 2rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  /* TOOL PANEL */
+  .tool-panel {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  .tool-panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1.2rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .card-title .icon {
+    width: 32px; height: 32px;
+    background: rgba(168,255,87,0.1);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+
+  /* FORM */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168,255,87,0.1);
+  }
+
+  select option { background: var(--surface2); }
+
+  /* TOGGLE GENDER */
+  .gender-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .gender-btn {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .gender-btn.active {
+    background: rgba(168,255,87,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* RANGE */
+  input[type="range"] {
+    padding: 0;
+    border: none;
+    background: transparent;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .range-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 0.3rem;
+  }
+
+  /* BUTTON */
+  .btn-calc {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    border: none;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-calc:hover {
+    background: #c5ff7a;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(168,255,87,0.25);
+  }
+  .btn-calc:active { transform: translateY(0); }
+
+  /* RESULTS */
+  .results {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  .results.show { display: block; }
+
+  .result-big {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--surface2);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+  }
+
+  .result-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .result-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin-top: 0.3rem;
+  }
+
+  .result-category {
+    display: inline-block;
+    padding: 0.25rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.8rem;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .result-mini {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0.8rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .result-mini .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .result-mini .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 2rem;
+    height: 8px;
+    overflow: hidden;
+    margin: 0.8rem 0;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 2rem;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  /* SIDEBAR */
+  .sidebar { }
+
+  /* AD BLOCK */
+  .ad-block {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .ad-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+  }
+
+  .ad-placeholder {
+    background: var(--surface2);
+    border-radius: 0.6rem;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    border: 1px solid var(--border);
+  }
+
+  .ad-placeholder .ad-icon { font-size: 2rem; opacity: 0.4; }
+
+  /* AFFILIATION CARDS */
+  .aff-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+
+  .aff-card:hover {
+    border-color: rgba(168,255,87,0.4);
+    transform: translateY(-2px);
+  }
+
+  .aff-badge {
+    font-size: 0.6rem;
+    background: rgba(255,107,53,0.15);
+    color: var(--accent3);
+    border: 1px solid rgba(255,107,53,0.3);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: inline-block;
+  }
+
+  .aff-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .aff-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .aff-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+  }
+
+  .aff-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .aff-btn {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* MACRO TABLE */
+  .macro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  .macro-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .macro-table td {
+    padding: 0.7rem 0.8rem;
+    border-bottom: 1px solid rgba(31,46,31,0.5);
+  }
+
+  .macro-table tr:last-child td { border-bottom: none; }
+
+  .macro-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+
+  /* TIPS */
+  .tip-item {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tip-item:last-child { border-bottom: none; }
+
+  .tip-num {
+    width: 24px; height: 24px;
+    min-width: 24px;
+    background: rgba(168,255,87,0.1);
+    border: 1px solid rgba(168,255,87,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .tip-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .tip-text strong { color: var(--text); font-weight: 500; }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* UTILS */
+  .text-accent { color: var(--accent); }
+  .text-accent2 { color: var(--accent2); }
+  .text-orange { color: var(--accent3); }
+
+  .bmi-underweight { background: rgba(87,183,255,0.15); color: #57b7ff; }
+  .bmi-normal { background: rgba(168,255,87,0.15); color: var(--accent); }
+  .bmi-overweight { background: rgba(255,200,50,0.15); color: #ffc832; }
+  .bmi-obese { background: rgba(255,100,80,0.15); color: #ff6450; }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 3rem 1.5rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Fit<span>Calc</span> Pro</div>
+  <nav>
+    <a href="#tools">Outils</a>
+    <a href="#tips">Conseils</a>
+    <!-- 💰 Lien affiliation Amazon nutrition -->
+    <a href="https://amzn.to/XXXXXXX" target="_blank" style="color: var(--accent);">🛒 Shop</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">✦ Outil gratuit • Résultats instantanés</div>
+  <h1>Votre corps,<br><em>vos données</em> réelles</h1>
+  <p>Calculez votre IMC, besoins caloriques, macronutriments et objectif de forme en 30 secondes.</p>
+</section>
+
+<!-- TABS -->
+<div class="tabs" id="tools">
+  <button class="tab-btn active" onclick="switchTab('imc')">⚖️ IMC</button>
+  <button class="tab-btn" onclick="switchTab('calories')">🔥 Calories</button>
+  <button class="tab-btn" onclick="switchTab('macros')">🥗 Macros</button>
+  <button class="tab-btn" onclick="switchTab('water')">💧 Hydratation</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: TOOL PANELS -->
+  <div>
+
+    <!-- ===== IMC PANEL ===== -->
+    <div class="tool-panel active" id="panel-imc">
+      <div class="card">
+        <div class="card-title"><div class="icon">⚖️</div> Calculateur d'IMC</div>
+
+        <div class="form-group">
+          <label>Genre</label>
+          <div class="gender-toggle">
+            <button class="gender-btn active" onclick="setGender(this,'H')">♂ Homme</button>
+            <button class="gender-btn" onclick="setGender(this,'F')">♀ Femme</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Âge</label>
+          <input type="number" id="imc-age" value="28" min="10" max="100" placeholder="28">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Taille (cm)</label>
+            <input type="number" id="imc-height" value="175" min="100" max="250" placeholder="175">
+          </div>
+          <div class="form-group">
+            <label>Poids (kg)</label>
+            <input type="number" id="imc-weight" value="70" min="30" max="300" placeholder="70">
+          </div>
+        </div>
+
+        <button class="btn-calc" onclick="calcIMC()">Calculer mon IMC →</button>
+      </div>
+
+      <div class="results card" id="results-imc">
+        <div class="card-title"><div class="icon">📊</div> Vos résultats</div>
+        <div class="result-big">
+          <div class="result-value text-accent" id="imc-value">—</div>
+          <div class="result-label">Indice de Masse Corporelle</div>
+          <div class="result-category" id="imc-cat"></div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="imc-bar" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:1.2rem;font-weight:600;">
+          <span>Insuffisant &lt;18.5</span><span>Normal 18.5–25</span><span>Surpoids &gt;25</span>
+        </div>
+        <div class="result-grid">
+          <div class="result-mini">
+            <div class="val" id="imc-ideal">—</div>
+            <div class="lbl">Poids idéal (kg)</div>
+          </div>
+          <div class="result-mini">
+            <div class="val" id="imc-diff">—</div>
+            <div class="lbl">Écart objectif</div>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:0.8rem;padding:1rem;font-size:0.85rem;color:var(--muted);line-height:1.6;" id="imc-advice"></div>
+      </div>
+    </div>
+
+    <!-- ===== CALORIES PANEL ===== -->
+    <div class="tool-panel" id="panel-calories">
+      <div class="card">
+        <div class="card-title"><div class="icon">🔥</div> Besoins Caloriques (TDEE)</div>
+
+        <div class="form-group">
+          <label>Genre</label>
+          <div class="gender-toggle">
+            <button class="gender-btn active" onclick="setGenderCal(this,'H')">♂ Homme</button>
+            <button class="gender-btn" onclick="setGenderCal(this,'F')">♀ Femme</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Âge</label>
+            <input type="number" id="cal-age" value="28" min="10" max="100">
+          </div>
+          <div class="form-group">
+            <label>Poids (kg)</label>
+            <input type="number" id="cal-weight" value="70" min="30" max="300">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Taille (cm)</label>
+            <input type="number" id="cal-height" value="175" min="100" max="250">
+          </div>
+          <div class="form-group">
+            <label>% Masse grasse (opt.)</label>
+            <input type="number" id="cal-bf" placeholder="15" min="3" max="60">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Niveau d'activité</label>
+          <select id="cal-activity">
+            <option value="1.2">🛋️ Sédentaire (bureau, peu de sport)</option>
+            <option value="1.375">🚶 Légèrement actif (1–3x/semaine)</option>
+            <option value="1.55" selected>🏋️ Modérément actif (3–5x/semaine)</option>
+            <option value="1.725">🏃 Très actif (6–7x/semaine)</option>
+            <option value="1.9">⚡ Extrêmement actif (sportif pro)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Objectif</label>
+          <select id="cal-goal">
+            <option value="-500">📉 Perte de poids (−500 kcal)</option>
+            <option value="-250">📉 Perte légère (−250 kcal)</option>
+            <option value="0" selected>⚖️ Maintien</option>
+            <option value="250">📈 Prise légère (+250 kcal)</option>
+            <option value="500">📈 Prise de masse (+500 kcal)</option>
+          </select>
+        </div>
+
+        <button class="btn-calc" onclick="calcCalories()">Calculer mes besoins →</button>
+      </div>
+
+      <div class="results card" id="results-calories">
+        <div class="card-title"><div class="icon">📊</div> Vos besoins</div>
+        <div class="result-grid">
+          <div class="result-mini">
+            <div class="val text-accent" id="cal-bmr">—</div>
+            <div class="lbl">Métabolisme base</div>
+          </div>
+          <div class="result-mini">
+            <div class="val text-accent2" id="cal-tdee">—</div>
+            <div class="lbl">TDEE (total/jour)</div>
+          </div>
+        </div>
+        <div class="result-big">
+          <div class="result-value" id="cal-target" style="color:var(--accent3)">—</div>
+          <div class="result-label">Calories cibles / jour</div>
+        </div>
+        <div style="font-size:0.85rem;color:var(--muted);text-align:center;line-height:1.7;" id="cal-advice"></div>
+      </div>
+    </div>
+
+    <!-- ===== MACROS PANEL ===== -->
+    <div class="tool-panel" id="panel-macros">
+      <div class="card">
+        <div class="card-title"><div class="icon">🥗</div> Répartition des Macronutriments</div>
+
+        <div class="form-group">
+          <label>Calories cibles / jour</label>
+          <input type="number" id="mac-cal" value="2000" min="800" max="6000">
+        </div>
+
+        <div class="form-group">
+          <label>Objectif</label>
+          <select id="mac-goal">
+            <option value="loss">📉 Perte de poids</option>
+            <option value="maintain" selected>⚖️ Maintien / Forme</option>
+            <option value="gain">📈 Prise de masse</option>
+            <option value="perf">🏆 Performance sportive</option>
+          </select>
+        </div>
+
+        <button class="btn-calc" onclick="calcMacros()">Calculer mes macros →</button>
+      </div>
+
+      <div class="results card" id="results-macros">
+        <div class="card-title"><div class="icon">📊</div> Vos macros quotidiens</div>
+        <table class="macro-table" id="macro-table"></table>
+        <div style="margin-top:1rem;font-size:0.8rem;color:var(--muted);text-align:center;" id="macro-note"></div>
+      </div>
+    </div>
+
+    <!-- ===== WATER PANEL ===== -->
+    <div class="tool-panel" id="panel-water">
+      <div class="card">
+        <div class="card-title"><div class="icon">💧</div> Besoins en Hydratation</div>
+
+        <div class="form-group">
+          <label>Poids (kg)</label>
+          <div class="range-display" id="water-val-display">70 kg</div>
+          <input type="range" id="water-weight" min="40" max="200" value="70"
+            oninput="document.getElementById('water-val-display').textContent=this.value+' kg'">
+        </div>
+
+        <div class="form-group">
+          <label>Durée de sport / jour</label>
+          <select id="water-sport">
+            <option value="0">Pas de sport</option>
+            <option value="30">30 min</option>
+            <option value="60">1 heure</option>
+            <option value="90">1h30</option>
+            <option value="120">2 heures ou plus</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Climat</label>
+          <select id="water-climate">
+            <option value="1">🌤️ Tempéré</option>
+            <option value="1.1">☀️ Chaud</option>
+            <option value="1.2">🌡️ Très chaud / Canicule</option>
+          </select>
+        </div>
+
+        <button class="btn-calc" onclick="calcWater()">Calculer mon hydratation →</button>
+      </div>
+
+      <div class="results card" id="results-water">
+        <div class="card-title"><div class="icon">📊</div> Votre besoin hydrique</div>
+        <div class="result-big">
+          <div class="result-value text-accent2" id="water-result">—</div>
+          <div class="result-label">Litres d'eau / jour</div>
+        </div>
+        <div class="result-grid">
+          <div class="result-mini">
+            <div class="val" id="water-glasses" style="color:var(--accent2)">—</div>
+            <div class="lbl">Verres (250ml)</div>
+          </div>
+          <div class="result-mini">
+            <div class="val" id="water-sport-add" style="color:var(--accent3)">—</div>
+            <div class="lbl">Dont sport</div>
+          </div>
+        </div>
+        <div id="water-schedule" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+
+    <!-- TIPS -->
+    <div class="card" id="tips">
+      <div class="card-title"><div class="icon">💡</div> Conseils pratiques</div>
+      <div class="tip-item">
+        <div class="tip-num">1</div>
+        <div class="tip-text"><strong>Mangez à heures fixes.</strong> La régularité des repas stabilise la glycémie, réduit les fringales et améliore la composition corporelle.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">2</div>
+        <div class="tip-text"><strong>Priorité aux protéines au petit-déjeuner.</strong> 25–30g de protéines le matin réduit les envies sucrées sur toute la journée.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">3</div>
+        <div class="tip-text"><strong>Dormez 7–9h.</strong> Le manque de sommeil augmente la ghréline (hormone de la faim) et sabote la perte de poids même avec un bon régime.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">4</div>
+        <div class="tip-text"><strong>Musculation + cardio.</strong> La combinaison des deux est scientifiquement supérieure au cardio seul pour perdre du gras et tonifier.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">5</div>
+        <div class="tip-text"><strong>Buvez avant de manger.</strong> 500ml d'eau 30 min avant un repas réduit les apports caloriques de 13% selon une étude Oxford 2015.</div>
+      </div>
+    </div>
+
+  </div><!-- end left -->
+
+  <!-- RIGHT: SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- 💰 PUB ADSENSE ICI -->
+    <div class="ad-block">
+      <div class="ad-label">Publicité</div>
+      <!-- REMPLACE CE BLOC PAR TON CODE ADSENSE -->
+      <div class="ad-placeholder">
+        <div class="ad-icon">📢</div>
+        <div>Espace publicitaire</div>
+        <div style="font-size:0.7rem;opacity:0.6;">300×250 — Google AdSense</div>
+        <!-- ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins -->
+      </div>
+    </div>
+
+    <!-- 💰 AFFILIATION PRODUITS -->
+    <div class="card">
+      <div class="card-title" style="font-size:0.9rem;"><div class="icon">🛒</div> Produits recommandés</div>
+
+      <!-- 💰 LIEN AFFILIATION 1 — Whey Protéine Amazon -->
+      <a class="aff-card" href="https://amzn.to/XXXXXXX" target="_blank" rel="nofollow sponsored">
+        <div class="aff-badge">⭐ Top vente</div>
+        <div class="aff-title">Whey Protéine Premium</div>
+        <div class="aff-desc">Protéine instantanée, +25g/dose, sans sucres ajoutés. Idéal prise de masse et récupération.</div>
+        <div class="aff-cta">
+          <div class="aff-price">À partir de 29€</div>
+          <div class="aff-btn">Voir sur Amazon →</div>
+        </div>
+      </a>
+
+      <!-- 💰 LIEN AFFILIATION 2 — Créatine -->
+      <a class="aff-card" href="https://amzn.to/XXXXXXX" target="_blank" rel="nofollow sponsored">
+        <div class="aff-badge">🔬 Scientifiquement prouvé</div>
+        <div class="aff-title">Créatine Monohydrate</div>
+        <div class="aff-desc">Le supplément le mieux documenté. Force, puissance, récupération musculaire.</div>
+        <div class="aff-cta">
+          <div class="aff-price">À partir de 12€</div>
+          <div class="aff-btn">Voir sur Amazon →</div>
+        </div>
+      </a>
+
+      <!-- 💰 LIEN AFFILIATION 3 — Montre connectée -->
+      <a class="aff-card" href="https://amzn.to/XXXXXXX" target="_blank" rel="nofollow sponsored">
+        <div class="aff-badge">🎁 Coup de cœur</div>
+        <div class="aff-title">Montre Fitness Connectée</div>
+        <div class="aff-desc">Fréquence cardiaque, calories, sommeil, GPS. Compatible iOS & Android.</div>
+        <div class="aff-cta">
+          <div class="aff-price">À partir de 39€</div>
+          <div class="aff-btn">Voir sur Amazon →</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 💰 2ÈME BLOC PUB -->
+    <div class="ad-block">
+      <div class="ad-label">Publicité</div>
+      <div class="ad-placeholder" style="height:200px;">
+        <div class="ad-icon">📢</div>
+        <div>Espace publicitaire</div>
+        <div style="font-size:0.7rem;opacity:0.6;">300×200 — Google AdSense</div>
+      </div>
+    </div>
+
+  </div><!-- end sidebar -->
+
+</div><!-- end main -->
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:0.5rem;">FitCalc Pro</div>
+  <div>Outil gratuit de calcul fitness — Résultats à titre indicatif, consultez un professionnel de santé.</div>
+  <div style="margin-top:0.5rem;">
+    <a href="#">Mentions légales</a> · <a href="#">Politique de confidentialité</a> · <a href="#">Contact</a>
+  </div>
+  <div style="margin-top:0.5rem;opacity:0.4;">© 2025 FitCalc Pro — Tous droits réservés</div>
+</footer>
+
+<script>
+// === STATE ===
+let genderIMC = 'H';
+let genderCal = 'H';
+
+function setGender(btn, g) {
+  genderIMC = g;
+  btn.parentElement.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setGenderCal(btn, g) {
+  genderCal = g;
+  btn.parentElement.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// === IMC ===
+function calcIMC() {
+  const h = parseFloat(document.getElementById('imc-height').value) / 100;
+  const w = parseFloat(document.getElementById('imc-weight').value);
+  const age = parseInt(document.getElementById('imc-age').value);
+
+  if (!h || !w || h < 0.5 || w < 10) return;
+
+  const imc = w / (h * h);
+  const imcRound = imc.toFixed(1);
+
+  let cat, catClass, advice, idealMin, idealMax;
+  idealMin = (18.5 * h * h).toFixed(1);
+  idealMax = (24.9 * h * h).toFixed(1);
+  const idealMid = ((18.5 + 24.9) / 2 * h * h).toFixed(1);
+  const diff = (w - idealMid).toFixed(1);
+
+  if (imc < 18.5) {
+    cat = 'Insuffisance pondérale'; catClass = 'bmi-underweight';
+    advice = '⚠️ Votre IMC est en dessous de la normale. Il est recommandé d\'augmenter vos apports caloriques, notamment en protéines et en glucides complexes.';
+  } else if (imc < 25) {
+    cat = '✓ Poids normal'; catClass = 'bmi-normal';
+    advice = '✅ Excellent ! Votre IMC est dans la plage idéale. Maintenez vos habitudes alimentaires et sportives actuelles.';
+  } else if (imc < 30) {
+    cat = 'Surpoids'; catClass = 'bmi-overweight';
+    advice = '📊 IMC légèrement élevé. Un déficit calorique modéré (250–500 kcal/jour) associé à 3–4 séances de sport/semaine suffit à revenir à la normale.';
+  } else {
+    cat = 'Obésité'; catClass = 'bmi-obese';
+    advice = '🏥 Consultez un professionnel de santé pour un programme personnalisé. Une approche progressive et durable est recommandée.';
+  }
+
+  const barPct = Math.min(100, Math.max(0, ((imc - 10) / 30) * 100));
+
+  document.getElementById('imc-value').textContent = imcRound;
+  document.getElementById('imc-cat').textContent = cat;
+  document.getElementById('imc-cat').className = 'result-category ' + catClass;
+  document.getElementById('imc-ideal').textContent = idealMin + '–' + idealMax;
+  document.getElementById('imc-diff').textContent = diff > 0 ? '+' + diff + ' kg' : diff + ' kg';
+  document.getElementById('imc-diff').style.color = Math.abs(diff) < 3 ? 'var(--accent)' : diff > 0 ? '#ffc832' : '#57b7ff';
+  document.getElementById('imc-advice').textContent = advice;
+
+  const res = document.getElementById('results-imc');
+  res.classList.add('show');
+  setTimeout(() => {
+    document.getElementById('imc-bar').style.width = barPct + '%';
+  }, 100);
+}
+
+// === CALORIES ===
+function calcCalories() {
+  const age = parseInt(document.getElementById('cal-age').value);
+  const w = parseFloat(document.getElementById('cal-weight').value);
+  const h = parseFloat(document.getElementById('cal-height').value);
+  const bf = parseFloat(document.getElementById('cal-bf').value);
+  const act = parseFloat(document.getElementById('cal-activity').value);
+  const goal = parseInt(document.getElementById('cal-goal').value);
+
+  let bmr;
+  if (bf && bf > 0) {
+    const lbm = w * (1 - bf / 100);
+    bmr = 370 + 21.6 * lbm;
+  } else {
+    if (genderCal === 'H') bmr = 88.36 + 13.4 * w + 4.8 * h - 5.7 * age;
+    else bmr = 447.6 + 9.2 * w + 3.1 * h - 4.3 * age;
+  }
+
+  const tdee = Math.round(bmr * act);
+  const target = tdee + goal;
+
+  let advice = '';
+  if (goal < 0) advice = `Déficit de ${Math.abs(goal)} kcal/jour → perte estimée : ${(Math.abs(goal) * 7 / 7700).toFixed(2)} kg/semaine`;
+  else if (goal === 0) advice = `Maintien du poids actuel. Consommez exactement ${tdee} kcal/jour.`;
+  else advice = `Surplus de ${goal} kcal/jour → prise estimée : ${(goal * 7 / 7700).toFixed(2)} kg/semaine`;
+
+  document.getElementById('cal-bmr').textContent = Math.round(bmr);
+  document.getElementById('cal-tdee').textContent = tdee;
+  document.getElementById('cal-target').textContent = target;
+  document.getElementById('cal-advice').textContent = advice;
+  document.getElementById('results-calories').classList.add('show');
+}
+
+// === MACROS ===
+function calcMacros() {
+  const cal = parseFloat(document.getElementById('mac-cal').value);
+  const goal = document.getElementById('mac-goal').value;
+
+  let ratios = {
+    loss:     { p: 0.35, f: 0.30, c: 0.35 },
+    maintain: { p: 0.25, f: 0.30, c: 0.45 },
+    gain:     { p: 0.25, f: 0.25, c: 0.50 },
+    perf:     { p: 0.30, f: 0.20, c: 0.50 }
+  };
+
+  const r = ratios[goal];
+  const p = Math.round(cal * r.p / 4);
+  const f = Math.round(cal * r.f / 9);
+  const c = Math.round(cal * r.c / 4);
+
+  const pCal = p * 4, fCal = f * 9, cCal = c * 4;
+
+  const rows = [
+    { name: 'Protéines', g: p, kcal: pCal, pct: Math.round(r.p * 100), color: '#a8ff57', dot: '#a8ff57' },
+    { name: 'Lipides', g: f, kcal: fCal, pct: Math.round(r.f * 100), color: '#ff6b35', dot: '#ff6b35' },
+    { name: 'Glucides', g: c, kcal: cCal, pct: Math.round(r.c * 100), color: '#57ffb8', dot: '#57ffb8' }
+  ];
+
+  let html = `<thead><tr>
+    <th>Macro</th><th>Grammes</th><th>Calories</th><th>%</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach(r => {
+    html += `<tr>
+      <td><span class="macro-dot" style="background:${r.dot}"></span>${r.name}</td>
+      <td style="font-weight:600;color:${r.color}">${r.g}g</td>
+      <td style="color:var(--muted)">${r.kcal} kcal</td>
+      <td style="color:var(--muted)">${r.pct}%</td>
+    </tr>`;
+  });
+
+  html += `<tr style="border-top:1px solid var(--border)">
+    <td style="font-weight:700">Total</td>
+    <td style="color:var(--accent);font-weight:700">—</td>
+    <td style="color:var(--accent);font-weight:700">${cal} kcal</td>
+    <td style="color:var(--muted)">100%</td>
+  </tr></tbody>`;
+
+  document.getElementById('macro-table').innerHTML = html;
+
+  const notes = {
+    loss: '💡 En déficit, les protéines élevées préservent la masse musculaire.',
+    maintain: '💡 Répartition équilibrée pour maintien et santé générale.',
+    gain: '💡 Glucides élevés pour l\'énergie et la récupération musculaire.',
+    perf: '💡 Optimisé pour la performance : énergie immédiate + récupération.'
+  };
+  document.getElementById('macro-note').textContent = notes[goal];
+  document.getElementById('results-macros').classList.add('show');
+}
+
+// === WATER ===
+function calcWater() {
+  const w = parseFloat(document.getElementById('water-weight').value);
+  const sport = parseInt(document.getElementById('water-sport').value);
+  const climate = parseFloat(document.getElementById('water-climate').value);
+
+  const base = w * 0.033;
+  const sportAdd = sport * 0.5 / 60;
+  const total = ((base + sportAdd) * climate).toFixed(2);
+  const glasses = Math.ceil(total / 0.25);
+
+  document.getElementById('water-result').textContent = total + ' L';
+  document.getElementById('water-glasses').textContent = glasses;
+  document.getElementById('water-sport-add').textContent = '+' + (sportAdd * climate).toFixed(2) + 'L';
+
+  // Schedule
+  const times = ['7h', '9h', '11h', '13h', '15h', '17h', '19h', '21h'];
+  const perGlass = (total / times.length).toFixed(2);
+  let sched = '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Planning hydratation</div>';
+  sched += '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;">';
+  times.forEach(t => {
+    sched += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:0.4rem;padding:0.3rem 0.6rem;font-size:0.75rem;text-align:center;">
+      <div style="color:var(--accent2);font-weight:700">${t}</div>
+      <div style="color:var(--muted)">${perGlass}L</div>
+    </div>`;
+  });
+  sched += '</div>';
+  document.getElementById('water-schedule').innerHTML = sched;
+  document.getElementById('results-water').classList.add('show');
+}
+
+// Auto-calc on load
+setTimeout(() => calcIMC(), 300);
+</script>
+
+</body>
+</html>
