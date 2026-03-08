@@ -1,8 +1,0 @@
-{
-  "version": 2,
-  "routes": [
-    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
-    { "src": "/google0108ab899d44431c.html", "dest": "/google0108ab899d44431c.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
-}
